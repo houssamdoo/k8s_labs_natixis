@@ -198,6 +198,10 @@ curl -fsSL -o calico.yaml \
 
 # Uncomment and set CALICO_IPV4POOL_CIDR to ${POD_CIDR} under the calico-node
 # container env in calico.yaml, then apply.
+sed -i -E \
+  -e 's/^([[:space:]]*)#[[:space:]]*- name: CALICO_IPV4POOL_CIDR$/\1- name: CALICO_IPV4POOL_CIDR/' \
+  -e 's/^([[:space:]]*)#[[:space:]]*value: "192\.168\.0\.0\/16"$/\1  value: "10.244.0.0\/16"/' \
+  calico.yaml
 kubectl apply -f calico.yaml
 ```
 
@@ -214,7 +218,8 @@ Generate/regenerate the control-plane join command on `k8s-master-01` (certifica
 
 ```bash
 export CERT_KEY=$(sudo kubeadm init phase upload-certs --upload-certs | tail -1)
-sudo kubeadm token create --print-join-command --certificate-key "${CERT_KEY}"
+sudo kubeadm token create --print-join-command
+#sudo kubeadm token create --print-join-command --certificate-key "${CERT_KEY}"
 ```
 
 On **`k8s-master-02`**:
